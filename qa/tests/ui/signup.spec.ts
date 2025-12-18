@@ -4,11 +4,15 @@ test.describe("e2e - sign up", () => {
   test.beforeEach(async ({ page }) => {
     // Navigate to homepage
     await page.goto("/");
+
+    // Click 'Signup / Login' link
+    await page.getByRole("link", { name: "Signup / Login" }).click();
   });
 
-  test("happy path - sign up as new user - required fields only", async ({
+  test("should create new user account when all required fields are valid @signup @happy", async ({
     page,
   }) => {
+    await page.getByRole("heading", { name: "New User Signup!" }).waitFor();
     // Click 'Signup / Login' link
     // Under 'New User Signup!', fill in Name input
     // Fill in 'Email Address' input
@@ -38,9 +42,19 @@ test.describe("e2e - sign up", () => {
     // Assert 'Logged in as {name}' text is visible
   });
 
-  test("unhappy path - sign up using existing email", async ({ page }) => {});
+  test("should show error when signing up with existing email @signup @unhappy", async ({
+    page,
+  }) => {});
 
-  test("unhappy path - sign up with missing required password field", async ({
+  test("should show error when signing up with missing name @signup @unhappy", async ({
+    page,
+  }) => {});
+
+  test("should show error when signing up with invalid email (missing @) @signup @unhappy", async ({
+    page,
+  }) => {});
+
+  test("should show error when signing up with invalid email (missing domain) @signup @unhappy", async ({
     page,
   }) => {});
 });
