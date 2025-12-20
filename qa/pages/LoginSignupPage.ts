@@ -31,22 +31,26 @@ export class LoginSignupPage {
     this.loginHeading = page.getByRole("heading", {
       name: "Login to your account",
     });
-    this.loginEmailInput = page.locator('[data-qa="login-email"]');
-    this.loginPasswordInput = page.locator('[data-qa="login-password"]');
-    this.loginButton = page.locator('[data-qa="login-button"]');
-    this.invalidCredentialsErrorMessage = page.locator(
-      "text=Your email or password is incorrect!"
+    this.loginEmailInput = page
+      .locator('[class="login-form"]')
+      .getByRole("textbox", { name: "Email Address" });
+    this.loginPasswordInput = page.getByRole("textbox", { name: "Password" });
+    this.loginButton = page.getByRole("button", { name: "Login" });
+    this.invalidCredentialsErrorMessage = page.getByText(
+      "Your email or password is incorrect!"
     );
 
     // Signup section locators
     this.signupHeading = page.getByRole("heading", {
       name: "New User Signup!",
     });
-    this.signupNameInput = page.locator('[data-qa="signup-name"]');
-    this.signupEmailInput = page.locator('[data-qa="signup-email"]');
-    this.signupButton = page.locator('[data-qa="signup-button"]');
-    this.emailExistsErrorMessage = page.locator(
-      "text=Email Address already exist!"
+    this.signupNameInput = page.getByRole("textbox", { name: "Name" });
+    this.signupEmailInput = page
+      .locator('[class="signup-form"]')
+      .getByRole("textbox", { name: "Email Address" });
+    this.signupButton = page.getByRole("button", { name: "Signup" });
+    this.emailExistsErrorMessage = page.getByText(
+      "Email Address already exist!"
     );
   }
 
@@ -117,8 +121,9 @@ export class LoginSignupPage {
   /**
    * Fill signup form with name and email
    */
-  async fillSignupForm(name: string, email: string) {
+  async fillAndSubmitSignupForm(name: string, email: string) {
     await this.fillSignupName(name);
     await this.fillSignupEmail(email);
+    await this.clickSignupButton();
   }
 }

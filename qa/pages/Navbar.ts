@@ -20,14 +20,14 @@ export class Navbar {
     this.page = page;
 
     // Navigation
-    this.homeLink = page.locator('a[href="/"]').first();
-    this.productsLink = page.locator('a[href="/products"]');
-    this.cartLink = page.locator('a[href="/view_cart"]');
-    this.signupLoginLink = page.locator('a[href="/login"]');
+    this.homeLink = page.getByRole("link", { name: "Home" });
+    this.productsLink = page.getByRole("link", { name: "Products" });
+    this.cartLink = page.getByRole("link", { name: "Cart" });
+    this.signupLoginLink = page.getByRole("link", { name: "Signup / Login" });
 
     // Account Actions
-    this.logoutLink = page.locator('a[href="/logout"]');
-    this.deleteAccountLink = page.locator('a[href="/delete_account"]');
+    this.logoutLink = page.getByRole("link", { name: "Logout" });
+    this.deleteAccountLink = page.getByRole("link", { name: "Delete Account" });
   }
 
   async goToSignupLogin() {
@@ -41,9 +41,7 @@ export class Navbar {
   }
 
   // Gets the "Logged in as..." username
-  async getLoggedInUsername(): Promise<string> {
-    const usernameElement = this.page.locator('a:has([class="fa fa-user"]) b');
-    const username = await usernameElement.textContent();
-    return username?.trim() || "";
+  get loggedInUsername() {
+    return this.page.locator("a:has(.fa-user) b");
   }
 }
