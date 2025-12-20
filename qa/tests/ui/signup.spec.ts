@@ -1,15 +1,17 @@
 import { test, expect } from "@playwright/test";
 import { Navbar } from "../../pages/Navbar";
 import { LoginSignupPage } from "../../pages/LoginSignupPage";
-import exp = require("constants");
+import { SignupFormPage } from "../../pages/SignupFormPage";
 
 test.describe("e2e - sign up", () => {
   let navbar: Navbar;
   let loginSignupPage: LoginSignupPage;
+  let signupFormPage: SignupFormPage;
 
   test.beforeEach(async ({ page }) => {
     navbar = new Navbar(page);
     loginSignupPage = new LoginSignupPage(page);
+    signupFormPage = new SignupFormPage(page);
 
     // Navigate to homepage
     await page.goto("/");
@@ -26,77 +28,43 @@ test.describe("e2e - sign up", () => {
     page,
   }) => {
     // Test Data
-    const firstName: string = "John";
-    const lastName: string = "Smith";
-    const fullName: string = `${firstName} ${lastName}`;
-    const email: string = "happy_path_signup@email.com";
-    const password: string = "password1234";
-    const address: string = "1234 Test Ave";
-    const country: string = "United States";
-    const state: string = "Texas";
-    const city: string = "Dallas";
-    const zipcode: string = "12345";
-    const mobileNumber: string = "1234567890";
+    const userData = {
+      firstName: "John",
+      lastName: "Smith",
+      fullName: "John Smith",
+      email: "happy_path_signup@email.com",
+      password: "password1234",
+      address: "1234 Test Ave",
+      country: "United States",
+      state: "Texas",
+      city: "Dallas",
+      zipcode: "12345",
+      mobileNumber: "1234567890",
+    };
 
     // Wait for the heading
     await page.getByRole("heading", { name: "New User Signup!" }).waitFor();
 
     // Fill in name and email on signup form and click 'Signup' button
-    await loginSignupPage.fillAndSubmitSignupForm(fullName, email);
+    await loginSignupPage.fillAndSubmitSignupForm(
+      userData.fullName,
+      userData.email
+    );
 
     // Assert 'Name' field is pre-filled with the name entered on previous signup page
-    await expect(
-      page.getByRole("textbox", { name: "Name *", exact: true })
-    ).toHaveValue(fullName);
+    await expect(signupFormPage.nameInput).toHaveValue(userData.fullName);
 
     // Assert 'Name' field is editable (enabled)
-    await expect(
-      page.getByRole("textbox", { name: "Name *", exact: true })
-    ).toBeEnabled();
+    await expect(signupFormPage.nameInput).toBeEnabled();
 
     // Assert 'Email' field is pre-filled
-    await expect(
-      page.getByRole("textbox", { name: "Email *", exact: true })
-    ).toHaveValue(email);
+    await expect(signupFormPage.emailInput).toHaveValue(userData.email);
 
     // Assert 'Email' field in not editable (diabled)
-    await expect(
-      page.getByRole("textbox", { name: "Email *", exact: true })
-    ).toBeDisabled();
+    await expect(signupFormPage.emailInput).toBeDisabled();
 
-    // Fill in 'Password' input
-    await page.getByRole("textbox", { name: "Password" }).fill(password);
-
-    // Fill in 'First name' input
-    await page.getByRole("textbox", { name: "First Name *" }).fill(firstName);
-
-    // Fill in 'Last name' input
-    await page.getByRole("textbox", { name: "Last Name *" }).fill(lastName);
-
-    // Fill in 'Address' input
-    await page.getByRole("textbox", { name: "Address *" }).fill(address);
-
-    // Select 'Country' option from dropdown
-    await page
-      .getByRole("combobox", { name: "Country *" })
-      .selectOption(country);
-
-    // Fill in 'State' input
-    await page.getByRole("textbox", { name: "State *" }).fill(state);
-
-    // Fill in 'City' input
-    await page.getByRole("textbox", { name: "City *" }).fill(city);
-
-    // Fill in 'Zipcode' input (label is wrong for [for="city"] attr)
-    await page.locator('[data-qa="zipcode"]').fill(zipcode);
-
-    // Fill in 'Mobile Number' input
-    await page
-      .getByRole("textbox", { name: "Mobile Number *" })
-      .fill(mobileNumber);
-
-    // Click 'Create Account' button
-    await page.getByRole("button", { name: "Create Account" }).click();
+    // Fill all required fields
+    await signupFormPage.fillAndSubmitSignupForm(userData);
 
     // Assert redirect to /account_created
     await expect(page).toHaveURL("/account_created");
@@ -126,7 +94,7 @@ test.describe("e2e - sign up", () => {
     await expect(navbar.deleteAccountLink).toBeVisible();
 
     // Assert 'Logged in as {name}' text is visible
-    await expect(navbar.loggedInUsername).toHaveText(fullName);
+    await expect(navbar.loggedInUsername).toHaveText(userData.fullName);
   });
 
   // test("should show error when signing up with existing email @signup @unhappy", async ({
