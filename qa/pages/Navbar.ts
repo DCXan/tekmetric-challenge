@@ -1,6 +1,8 @@
-// components/Navbar.ts
 import { Page, Locator, expect } from "@playwright/test";
 
+/**
+ * Navbar - persists across all pages
+ */
 export class Navbar {
   readonly page: Page;
 
@@ -26,6 +28,16 @@ export class Navbar {
     // Account Actions
     this.logoutLink = page.locator('a[href="/logout"]');
     this.deleteAccountLink = page.locator('a[href="/delete_account"]');
+  }
+
+  async goToSignupLogin() {
+    await this.signupLoginLink.click();
+    await this.page.waitForURL("**/login");
+  }
+
+  async logout() {
+    await this.logoutLink.click();
+    await this.page.waitForURL("**/login");
   }
 
   // Gets the "Logged in as..." username

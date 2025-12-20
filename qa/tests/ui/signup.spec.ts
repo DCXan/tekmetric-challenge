@@ -1,12 +1,17 @@
 import { test, expect } from "@playwright/test";
+import { Navbar } from "../../pages/Navbar";
 
 test.describe("e2e - sign up", () => {
+  let navbar: Navbar;
+
   test.beforeEach(async ({ page }) => {
+    navbar = new Navbar(page);
+
     // Navigate to homepage
     await page.goto("/");
 
     // Click 'Signup / Login' link
-    await page.getByRole("link", { name: "Signup / Login" }).click();
+    await navbar.signupLoginLink.click();
   });
 
   test("should create new user account when all required fields are valid @signup @happy", async ({
@@ -42,19 +47,19 @@ test.describe("e2e - sign up", () => {
     // Assert 'Logged in as {name}' text is visible
   });
 
-  test("should show error when signing up with existing email @signup @unhappy", async ({
-    page,
-  }) => {});
+  // test("should show error when signing up with existing email @signup @unhappy", async ({
+  //   page,
+  // }) => {});
 
-  test("should show error when signing up with missing name @signup @unhappy", async ({
-    page,
-  }) => {});
+  // test("should show error when signing up with missing name @signup @unhappy", async ({
+  //   page,
+  // }) => {});
 
-  test("should show error when signing up with invalid email (missing @) @signup @unhappy", async ({
-    page,
-  }) => {});
+  // test("should show error when signing up with invalid email (missing @) @signup @unhappy", async ({
+  //   page,
+  // }) => {});
 
-  test("should show error when signing up with invalid email (missing domain) @signup @unhappy", async ({
-    page,
-  }) => {});
+  // test("should show error when signing up with invalid email (missing domain) @signup @unhappy", async ({
+  //   page,
+  // }) => {});
 });
