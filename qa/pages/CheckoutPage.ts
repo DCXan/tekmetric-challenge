@@ -110,10 +110,9 @@ export class CheckoutPage {
    * @param userData - User data from generateUserData()
    */
   async verifyDeliveryAddress(userData: UserData): Promise<void> {
-    // Verify name (format: ". FirstName LastName")
+    // Verify name (format: "FirstName LastName")
     const nameText = await this.deliveryName.textContent();
-    expect(nameText).toContain(userData.firstName);
-    expect(nameText).toContain(userData.lastName);
+    expect(nameText).toBe(`. ${userData.firstName} ${userData.lastName}`); // Likely bug here due to the "." preceding the user's name
 
     // Verify address
     await expect(this.deliveryAddress1).toContainText(userData.address);
