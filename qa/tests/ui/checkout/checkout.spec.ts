@@ -36,10 +36,10 @@ test.describe("e2e - checkout", () => {
 
   test.afterEach(async ({ page }) => {
     // Delete the account via API
-    // await accountApi.safeDeleteAccount(
-    //   userAccountCredentials.email,
-    //   userAccountCredentials.password
-    // );
+    await accountApi.safeDeleteAccount(
+      userAccountCredentials.email,
+      userAccountCredentials.password
+    );
   });
 
   test("should add a single product to cart and checkout successfully @checkout @happy", async ({
@@ -59,7 +59,7 @@ test.describe("e2e - checkout", () => {
     await navbar.productsLink.click();
 
     // Add a random product to the cart
-    const product = await productsPage.addRandomProductToCart();
+    const product = await productsPage.hoverAndAddRandomProductToCart();
 
     // Click the 'View Cart' link
     await page.getByRole("link", { name: "View Cart" }).click();

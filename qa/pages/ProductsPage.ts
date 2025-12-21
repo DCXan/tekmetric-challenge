@@ -221,4 +221,67 @@ export class ProductsPage {
 
     return product;
   }
+
+  /**
+   * Hover over a product card
+   * @param productCard - Product card locator
+   */
+  async hoverOverProductCard(productCard: Locator): Promise<void> {
+    await productCard.hover();
+  }
+
+  /**
+   * Hover over product card by index
+   * @param index - 0-based index of product
+   */
+  async hoverOverProductByIndex(index: number): Promise<void> {
+    const productCard = this.getProductCardByIndex(index);
+    await this.hoverOverProductCard(productCard);
+  }
+
+  /**
+   * Hover over a random product card
+   * @returns The index of the product that was hovered
+   */
+  async hoverOverRandomProduct(): Promise<number> {
+    const productCount = await this.getProductCount();
+
+    if (productCount === 0) {
+      return -1;
+    }
+
+    const randomIndex = Math.floor(Math.random() * productCount);
+    await this.hoverOverProductByIndex(randomIndex);
+
+    return randomIndex;
+  }
+
+  /**
+   * Hover over random product card and add to cart
+   * @returns The product that was added, or null if no products available
+   */
+  async hoverAndAddRandomProductToCart(): Promise<Product | null> {
+    const productCount = await this.getProductCount();
+
+    if (productCount === 0) {
+      return null;
+    }
+
+    const randomIndex = Math.floor(Math.random() * productCount);
+    const productCard = this.getProductCardByIndex(randomIndex);
+
+    // Get product info
+    const product = await this.getProductByIndex(randomIndex);
+
+    // Hover over product card
+    await this.hoverOverProductCard(productCard);
+
+    // Wait a moment for hover effects
+    await this.page.waitForTimeout(500);
+
+    // Add to cart
+    await this.addProductToCart(productCard);
+
+    return product;
+  }
 }
