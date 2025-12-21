@@ -5,12 +5,14 @@ import { generateUserData } from "../../../utils/test-data-generator";
 import { AccountApiClient } from "../../../api/AccountApiClient";
 import { ProductsPage } from "../../../pages/ProductsPage";
 import { CartPage } from "../../../pages/CartPage";
+import { CheckoutPage } from "../../../pages/CheckoutPage";
 
 test.describe("e2e - checkout", () => {
   let navbar: Navbar;
   let loginSignupPage: LoginSignupPage;
   let productsPage: ProductsPage;
   let cartPage: CartPage;
+  let checkoutPage: CheckoutPage;
   let accountApi: AccountApiClient;
   let userAccountCredentials: { email: string; password: string };
 
@@ -19,6 +21,7 @@ test.describe("e2e - checkout", () => {
     loginSignupPage = new LoginSignupPage(page);
     productsPage = new ProductsPage(page);
     cartPage = new CartPage(page);
+    checkoutPage = new CheckoutPage(page);
     accountApi = new AccountApiClient(request);
 
     // Navigate to homepage
@@ -64,36 +67,25 @@ test.describe("e2e - checkout", () => {
     // Assert there is one product row
     expect(await cartPage.getCartItemCount()).toBe(1);
 
-    // Get the product row
-    const productRow = await cartPage.findCartRowByProductName(product.name);
-
-    // Assert the product image src in the cart row matches the selected product's img src
-    await expect(cartPage.getProductImage(productRow)).toHaveAttribute(
-      "src",
-      product.imageSrc
-    );
-
-    // Assert the product description in the cart row matches the selected product's description
-    await expect(cartPage.getProductNameLink(productRow)).toHaveText(
-      product.name
-    );
-
-    // Assert the product price in the cart row matches the selected product's price
-    await expect(cartPage.getPriceText(productRow)).toHaveText(product.price);
-
-    // Assert the product quantity in the cart row is 1
-    await expect(cartPage.getQuantityCell(productRow)).toContainText("1");
-
-    // Assert the product price total in the cart row matches the selected product's price
-    await expect(cartPage.getTotalPrice(productRow)).toHaveText(product.price);
-
-    // Assert the delete button in the cart row is visible
-    await expect(cartPage.getDeleteButton(productRow)).toBeVisible();
-
-    // Assert the delete button in the cart row is enabled
-    await expect(cartPage.getDeleteButton(productRow)).toBeEnabled();
+    // Assert that the product details in the cart matches the product selected on products page
+    await cartPage.verifyProductInCart(product);
 
     // Click the 'Proceed To Checkout' link
     await cartPage.proceedToCheckoutButton.click();
+
+    // Assert redirect to checkout page
+    await expect(page).toHaveURL("/checkout");
+
+    // Assert 'Delivery Address" matches user data
+    await checkoutPage.verifyDeliveryAddress(user);
+
+    // Assert that the product details in the checkout page matches the product selected on products page
+    await checkoutPage.verifyProductInCheckout(product);
+
+    // Click 'Place Order' button
+    await checkoutPage.placeOrderButton.click();
+
+    // Assert redirect to payment page
+    await expect(page).toHaveURL("/payment");
   });
 });

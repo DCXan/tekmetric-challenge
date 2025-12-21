@@ -1,4 +1,14 @@
-import { Page, Locator } from "@playwright/test";
+import { Page, Locator, expect } from "@playwright/test";
+
+/**
+ * Product data interface (from ProductsPage)
+ */
+interface Product {
+  name: string;
+  price: string;
+  priceNumber: number;
+  imageSrc?: string;
+}
 
 /**
  * CartPage - Handles the shopping cart page
@@ -73,6 +83,60 @@ export class CartPage {
     }
 
     return null;
+  }
+
+  /**
+   * Verify product row matches product data
+   * Checks: image src, name, price, quantity (default 1), total
+   * @param row - Cart row locator
+   * @param product - Product data from ProductsPage
+   * @param expectedQuantity - Expected quantity (default: 1)
+   */
+  async verifyProductRow(
+    row: Locator,
+    product: Product,
+    expectedQuantity: number = 1
+  ): Promise<void> {
+    // Verify image
+    if (product.imageSrc) {
+      await expect(this.getProductImage(row)).toHaveAttribute(
+        "src",
+        product.imageSrc
+      );
+    }
+
+    // Verify product name
+    await expect(this.getProductNameLink(row)).toHaveText(product.name);
+
+    // Verify price
+    await expect(this.getPriceText(row)).toHaveText(product.price);
+
+    // Verify quantity
+    await expect(this.getQuantityButton(row)).toHaveText(
+      String(expectedQuantity)
+    );
+
+    // Verify total price (price * quantity)
+    const expectedTotal = `Rs. ${product.priceNumber * expectedQuantity}`;
+    await expect(this.getTotalPrice(row)).toHaveText(expectedTotal);
+
+    // Verify delete button is visible and enabled
+    await expect(this.getDeleteButton(row)).toBeVisible();
+    await expect(this.getDeleteButton(row)).toBeEnabled();
+  }
+
+  /**
+   * Verify product in cart by name and check all details
+   * Finds the row and verifies all product data
+   * @param product - Product data from ProductsPage
+   * @param expectedQuantity - Expected quantity (default: 1)
+   */
+  async verifyProductInCart(
+    product: Product,
+    expectedQuantity: number = 1
+  ): Promise<void> {
+    const row = await this.findCartRowByProductName(product.name);
+    await this.verifyProductRow(row, product, expectedQuantity);
   }
 
   // ========================================
