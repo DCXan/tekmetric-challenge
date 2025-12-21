@@ -5,7 +5,7 @@ import { SignupFormPage } from "../../../pages/SignupFormPage";
 import { generateUserData } from "../../../utils/test-data-generator";
 import { AccountApiClient } from "../../../api/AccountApiClient";
 
-test.describe("e2e - sign up", () => {
+test.describe("e2e - happy and unhappy sign up", () => {
   let navbar: Navbar;
   let loginSignupPage: LoginSignupPage;
   let signupFormPage: SignupFormPage;
@@ -44,7 +44,7 @@ test.describe("e2e - sign up", () => {
     await expect(loginSignupPage.signupHeading).toBeVisible();
 
     // Fill in name and email on signup form and click 'Signup' button
-    await loginSignupPage.fillAndSubmitSignupForm(user.fullName, user.email);
+    await loginSignupPage.fillAndSubmitNameAndEmail(user.fullName, user.email);
 
     // Assert 'Name' field is pre-filled with the name entered on previous signup page
     await expect(signupFormPage.nameInput).toHaveValue(user.fullName);

@@ -4,7 +4,7 @@ import { LoginSignupPage } from "../../../pages/LoginSignupPage";
 import { generateUserData } from "../../../utils/test-data-generator";
 import { AccountApiClient } from "../../../api/AccountApiClient";
 
-test.describe("e2e - log in with valid credentials", () => {
+test.describe("e2e - happy and unhappy log in", () => {
   let navbar: Navbar;
   let loginSignupPage: LoginSignupPage;
   let accountApi: AccountApiClient;

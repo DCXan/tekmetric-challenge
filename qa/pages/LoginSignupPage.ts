@@ -121,7 +121,7 @@ export class LoginSignupPage {
   /**
    * Fill signup form with name and email
    */
-  async fillAndSubmitSignupForm(name: string, email: string) {
+  async fillAndSubmitNameAndEmail(name: string, email: string) {
     await this.fillSignupName(name);
     await this.fillSignupEmail(email);
     await this.clickSignupButton();
