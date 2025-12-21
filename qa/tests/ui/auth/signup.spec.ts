@@ -27,7 +27,7 @@ test.describe("e2e - sign up", () => {
 
   test.afterEach(async ({ page }) => {
     // Delete the account via API
-    await accountApi.deleteAccount(
+    await accountApi.safeDeleteAccount(
       userAccountCredentials.email,
       userAccountCredentials.password
     );
@@ -40,8 +40,8 @@ test.describe("e2e - sign up", () => {
     const user = generateUserData();
     userAccountCredentials = user;
 
-    // Wait for the heading
-    await page.getByRole("heading", { name: "New User Signup!" }).waitFor();
+    // Assert signup heading is visible
+    await expect(loginSignupPage.signupHeading).toBeVisible();
 
     // Fill in name and email on signup form and click 'Signup' button
     await loginSignupPage.fillAndSubmitSignupForm(user.fullName, user.email);
