@@ -3,16 +3,20 @@ import { Navbar } from "../../../pages/Navbar";
 import { LoginSignupPage } from "../../../pages/LoginSignupPage";
 import { SignupFormPage } from "../../../pages/SignupFormPage";
 import { generateUserData } from "../../../utils/test-data-generator";
+import { AccountApiClient } from "../../../api/AccountApiClient";
 
 test.describe("e2e - sign up", () => {
   let navbar: Navbar;
   let loginSignupPage: LoginSignupPage;
   let signupFormPage: SignupFormPage;
+  let accountApi: AccountApiClient;
+  let userAccountCredentials: { email: string; password: string };
 
-  test.beforeEach(async ({ page }) => {
+  test.beforeEach(async ({ page, request }) => {
     navbar = new Navbar(page);
     loginSignupPage = new LoginSignupPage(page);
     signupFormPage = new SignupFormPage(page);
+    accountApi = new AccountApiClient(request);
 
     // Navigate to homepage
     await page.goto("/");
@@ -22,7 +26,11 @@ test.describe("e2e - sign up", () => {
   });
 
   test.afterEach(async ({ page }) => {
-    await navbar.deleteAccountLink.click(); // refactor with api
+    // Delete the account via API
+    await accountApi.deleteAccount(
+      userAccountCredentials.email,
+      userAccountCredentials.password
+    );
   });
 
   test("should create new user account when all required fields are valid @signup @happy", async ({
@@ -30,6 +38,7 @@ test.describe("e2e - sign up", () => {
   }) => {
     // Create user data
     const user = generateUserData();
+    userAccountCredentials = user;
 
     // Wait for the heading
     await page.getByRole("heading", { name: "New User Signup!" }).waitFor();
@@ -49,7 +58,7 @@ test.describe("e2e - sign up", () => {
     // Assert 'Email' field in not editable (diabled)
     await expect(signupFormPage.emailInput).toBeDisabled();
 
-    // Fill all required fields
+    // Fill all required fields on signup form and submit
     await signupFormPage.fillAndSubmitSignupForm(user);
 
     // Assert redirect to /account_created
@@ -67,7 +76,7 @@ test.describe("e2e - sign up", () => {
       )
     ).toBeVisible();
 
-    // Click 'Continue' link (looks button)
+    // Click 'Continue' link (looks like button)
     await page.getByRole("link", { name: "Continue" }).click();
 
     // Assert redirect to homepage
@@ -79,7 +88,7 @@ test.describe("e2e - sign up", () => {
     // Assert 'Delete Account' link is visible
     await expect(navbar.deleteAccountLink).toBeVisible();
 
-    // Assert 'Logged in as {name}' text is visible
+    // Assert 'Logged in as {name}' text is the user's name
     await expect(navbar.loggedInUsername).toHaveText(user.fullName);
   });
 
