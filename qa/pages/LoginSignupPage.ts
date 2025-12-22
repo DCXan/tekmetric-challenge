@@ -36,9 +36,9 @@ export class LoginSignupPage {
       .getByRole("textbox", { name: "Email Address" });
     this.loginPasswordInput = page.getByRole("textbox", { name: "Password" });
     this.loginButton = page.getByRole("button", { name: "Login" });
-    this.invalidCredentialsErrorMessage = page.getByText(
-      "Your email or password is incorrect!"
-    );
+    this.invalidCredentialsErrorMessage = page
+      .locator('p[style="color: red;"]')
+      .getByText("Your email or password is incorrect!");
 
     // Signup section locators
     this.signupHeading = page.getByRole("heading", {
@@ -49,9 +49,9 @@ export class LoginSignupPage {
       .locator('[class="signup-form"]')
       .getByRole("textbox", { name: "Email Address" });
     this.signupButton = page.getByRole("button", { name: "Signup" });
-    this.emailExistsErrorMessage = page.getByText(
-      "Email Address already exist!"
-    );
+    this.emailExistsErrorMessage = page
+      .locator('p[style="color: red;"]')
+      .getByText("Email Address already exist!");
   }
 
   /**

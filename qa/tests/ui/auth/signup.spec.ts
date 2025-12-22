@@ -2,7 +2,7 @@ import { test, expect } from "@playwright/test";
 import { Navbar } from "../../../pages/Navbar";
 import { LoginSignupPage } from "../../../pages/LoginSignupPage";
 import { SignupFormPage } from "../../../pages/SignupFormPage";
-import { generateUserData } from "../../../utils/test-data-generator";
+import { generateUserData, UserData } from "../../../utils/test-data-generator";
 import { AccountApiClient } from "../../../api/AccountApiClient";
 
 test.describe("e2e - happy and unhappy sign up", () => {
@@ -10,13 +10,17 @@ test.describe("e2e - happy and unhappy sign up", () => {
   let loginSignupPage: LoginSignupPage;
   let signupFormPage: SignupFormPage;
   let accountApi: AccountApiClient;
-  let userAccountCredentials: { email: string; password: string };
+  let user: UserData;
 
   test.beforeEach(async ({ page, request }) => {
     navbar = new Navbar(page);
     loginSignupPage = new LoginSignupPage(page);
     signupFormPage = new SignupFormPage(page);
     accountApi = new AccountApiClient(request);
+
+    // Create user data
+    const newUser = generateUserData();
+    user = newUser;
 
     // Navigate to homepage
     await page.goto("/");
@@ -27,19 +31,12 @@ test.describe("e2e - happy and unhappy sign up", () => {
 
   test.afterEach(async ({ page }) => {
     // Delete the account via API
-    await accountApi.safeDeleteAccount(
-      userAccountCredentials.email,
-      userAccountCredentials.password
-    );
+    await accountApi.safeDeleteAccount(user.email, user.password);
   });
 
   test("should create new user account when all required fields are valid @signup @happy", async ({
     page,
   }) => {
-    // Create user data
-    const user = generateUserData();
-    userAccountCredentials = user;
-
     // Assert signup heading is visible
     await expect(loginSignupPage.signupHeading).toBeVisible();
 
@@ -92,19 +89,34 @@ test.describe("e2e - happy and unhappy sign up", () => {
     await expect(navbar.loggedInUsername).toHaveText(user.fullName);
   });
 
-  // test("should show error when signing up with existing email @signup @unhappy", async ({
-  //   page,
-  // }) => {});
+  test("should show error when signing up with existing email @signup @unhappy", async ({
+    page,
+  }) => {
+    // Create account via API
+    await accountApi.createAccountFromUserData(user);
 
-  // test("should show error when signing up with missing name @signup @unhappy", async ({
-  //   page,
-  // }) => {});
+    // Call verify login API with valid user credentials
+    const response = await accountApi.verifyLoginApi(user.email, user.password);
 
-  // test("should show error when signing up with invalid email (missing @) @signup @unhappy", async ({
-  //   page,
-  // }) => {});
+    // Assert 200 response
+    expect(response.responseCode).toBe(200);
 
-  // test("should show error when signing up with invalid email (missing domain) @signup @unhappy", async ({
-  //   page,
-  // }) => {});
+    // Fill signup name field
+    await loginSignupPage.fillSignupName(user.firstName);
+
+    // Fill signup email field (email already exists/take)
+    await loginSignupPage.fillSignupEmail(user.email);
+
+    // Click 'Login' button
+    await loginSignupPage.signupButton.click();
+
+    // Assert login error message is visible
+    await expect(loginSignupPage.emailExistsErrorMessage).toBeVisible();
+
+    // Assert page URL is still /login (fails here due to URL changing to /checkout - unsure if intended)
+    await expect(page).toHaveURL("/login");
+
+    // Assert signup header is still visible
+    await expect(loginSignupPage.signupHeading).toBeVisible();
+  });
 });
