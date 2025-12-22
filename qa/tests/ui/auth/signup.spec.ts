@@ -113,7 +113,7 @@ test.describe("e2e - happy and unhappy sign up", () => {
     // Assert login error message is visible
     await expect(loginSignupPage.emailExistsErrorMessage).toBeVisible();
 
-    // Assert page URL is still /login (fails here due to URL changing to /checkout - unsure if intended)
+    // Assert page URL is still /login (fails here due to URL changing to /signup - unsure if intended)
     await expect(page).toHaveURL("/login");
 
     // Assert signup header is still visible

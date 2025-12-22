@@ -1,7 +1,11 @@
 import { test, expect } from "@playwright/test";
 import { Navbar } from "../../../pages/Navbar";
 import { LoginSignupPage } from "../../../pages/LoginSignupPage";
-import { generateUserData, UserData } from "../../../utils/test-data-generator";
+import {
+  generateUserData,
+  InvalidTestData,
+  UserData,
+} from "../../../utils/test-data-generator";
 import { AccountApiClient } from "../../../api/AccountApiClient";
 
 test.describe("e2e - happy and unhappy log in", () => {
@@ -90,7 +94,10 @@ test.describe("e2e - happy and unhappy log in", () => {
     page,
   }) => {
     // Invalid email
-    const invalidEmail = "nodomainemail@";
+    const invalidEmail = InvalidTestData.emails.missingDomain;
+
+    // Wait for login email input to be visible
+    await loginSignupPage.loginEmailInput.waitFor({ state: "visible" });
 
     // Fill login email field
     await loginSignupPage.fillLoginEmail(invalidEmail);
@@ -105,8 +112,26 @@ test.describe("e2e - happy and unhappy log in", () => {
     const validationMessage = await loginSignupPage.loginEmailInput.evaluate(
       (element: HTMLInputElement) => element.validationMessage
     );
-    expect(validationMessage).toContain(
-      `Please enter a part following '@'. '${invalidEmail}' is incomplete.`
+
+    // Check if message contains any of these (browser specific form validation messages)
+    const possibleMessages = [
+      `Please enter a part following '@'. '${invalidEmail}' is incomplete.`, // Chromium
+      "Please enter an email address.", // Firefox
+      "Enter an email address", // WebKit
+    ];
+
+    // Store the result of whether one of the messages was displayed (true/false)
+    const hasValidMessage = possibleMessages.some((msg) =>
+      validationMessage.includes(msg)
     );
+
+    // Assert that at least one of the validation messages was displayed
+    expect(hasValidMessage).toBeTruthy();
+
+    // Assert page URL is still /login
+    await expect(page).toHaveURL("/login");
+
+    // Assert login header is still visible
+    await expect(loginSignupPage.loginHeading).toBeVisible();
   });
 });

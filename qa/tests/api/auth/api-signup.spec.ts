@@ -14,11 +14,13 @@ test.describe("API - Create Account", () => {
   });
 
   test.afterEach(async () => {
-    // Delete the account via API
-    await accountApi.safeDeleteAccount(
-      userAccountCredentials.email,
-      userAccountCredentials.password
-    );
+    // Only delete if userAccountCredentials was set
+    if (userAccountCredentials) {
+      await accountApi.safeDeleteAccount(
+        userAccountCredentials.email,
+        userAccountCredentials.password
+      );
+    }
   });
 
   test.describe("POST /api/createAccount - Create User Account", () => {
