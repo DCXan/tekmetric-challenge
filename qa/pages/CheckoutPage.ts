@@ -112,7 +112,7 @@ export class CheckoutPage {
   async verifyDeliveryAddress(userData: UserData): Promise<void> {
     // Verify name (format: "FirstName LastName")
     const nameText = await this.deliveryName.textContent();
-    expect(nameText).toBe(`. ${userData.firstName} ${userData.lastName}`); // Likely bug here due to the "." preceding the user's name
+    expect(nameText).toBe(`${userData.firstName} ${userData.lastName}`); // Likely bug here due to the "." preceding the user's name
 
     // Verify address
     await expect(this.deliveryAddress1).toContainText(userData.address);

@@ -68,7 +68,11 @@ export class AccountApiClient {
    */
   async safeDeleteAccount(email: string, password: string): Promise<void> {
     try {
-      await this.deleteAccount(email, password);
+      const result = await this.deleteAccount(email, password);
+      // If response indicates failure, just log it
+      if (result.responseCode !== 200) {
+        console.log(`Account ${email} not deleted: ${result.message}`);
+      }
     } catch (error) {
       // Silently ignore errors during cleanup
       console.log(`Could not delete account ${email}:`, error);
@@ -149,5 +153,66 @@ export class AccountApiClient {
       city: userData.city,
       mobile_number: userData.mobileNumber,
     });
+  }
+
+  /**
+   * Verify user login with valid credentials
+   * @param email - User's email address
+   * @param password - User's password
+   * @returns API response with success/error message
+   */
+  async verifyLoginApi(
+    email: string,
+    password: string
+  ): Promise<{
+    responseCode: number;
+    message: string;
+  }> {
+    try {
+      const response = await this.request.post(`${this.baseURL}/verifyLogin`, {
+        form: {
+          email,
+          password,
+        },
+      });
+
+      const responseBody = await response.json();
+
+      return {
+        responseCode: responseBody.responseCode || response.status(),
+        message: responseBody.message || "",
+      };
+    } catch (error) {
+      console.error("Error verifying login:", error);
+      throw error;
+    }
+  }
+
+  async verifyLoginWithPartialData(data: {
+    email?: string;
+    password?: string;
+  }): Promise<{
+    responseCode: number;
+    message: string;
+  }> {
+    try {
+      // Build form data, only including defined values
+      const formData: Record<string, string> = {};
+      if (data.email !== undefined) formData.email = data.email;
+      if (data.password !== undefined) formData.password = data.password;
+
+      const response = await this.request.post(`${this.baseURL}/verifyLogin`, {
+        form: formData,
+      });
+
+      const responseBody = await response.json();
+      return {
+        responseCode: responseBody.responseCode || response.status(),
+        message: responseBody.message || "",
+      };
+    } catch (error) {
+      console.error("Error verifying login with partial data:", error);
+      throw error;
+    }
   }
 }
